@@ -7,7 +7,55 @@ const takeawayController = require('../controllers/takeawayController');
 const deliveryController = require('../controllers/deliveryController');
 const menuController = require('../controllers/menuController');
 const tokenController = require('../controllers/tokenController');
+const authController = require('../controllers/authController');
+const userController = require('../controllers/userController');
+
+// Import middleware
 const firebaseAuth = require('../middleware/auth.middleware');
+const { authenticateToken, authorizeRole } = require('../middleware/jwt.middleware');
+
+// ============================================
+// AUTHENTICATION ROUTES (PUBLIC)
+// ============================================
+
+// Login endpoint
+router.post('/auth/login', authController.login);
+
+// ============================================
+// PROTECTED ROUTES (REQUIRE AUTHENTICATION)
+// ============================================
+
+// Get current user profile
+router.get('/auth/profile', authenticateToken, authController.getProfile);
+
+// Change password
+router.post('/auth/change-password', authenticateToken, authController.changePassword);
+
+// ============================================
+// USER MANAGEMENT ROUTES (ADMIN ONLY)
+// ============================================
+
+// Get all users
+router.get('/users', authenticateToken, authorizeRole('admin'), userController.getAllUsers);
+
+// Get user statistics
+router.get('/users/stats', authenticateToken, authorizeRole('admin'), userController.getUserStats);
+
+// Get all roles
+router.get('/roles', authenticateToken, userController.getRoles);
+
+// Get single user by ID
+router.get('/users/:id', authenticateToken, authorizeRole('admin'), userController.getUserById);
+
+// Create new user
+router.post('/users', authenticateToken, authorizeRole('admin'), userController.createUser);
+
+// Update user
+router.put('/users/:id', authenticateToken, authorizeRole('admin'), userController.updateUser);
+
+// Delete user
+router.delete('/users/:id', authenticateToken, authorizeRole('admin'), userController.deleteUser);
+
 // ============================================
 // MENU ROUTES
 // ============================================
